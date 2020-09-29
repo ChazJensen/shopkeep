@@ -1,0 +1,26 @@
+{
+  "name": "shopkeep",
+  "version": "1.0.0",
+  "description": "discord bot to keep currency trakcer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"node index.js\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChazJensen/shopkeep.git"
+  },
+  "keywords": [
+    "discord-bot",
+    "currency"
+  ],
+  "author": "ChazJensen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ChazJensen/shopkeep/issues"
+  },
+  "homepage": "https://github.com/ChazJensen/shopkeep#readme",
+  "dependencies": {
+    "discord.js": "^12.3.1"
+  }
+}
