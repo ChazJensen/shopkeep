@@ -33,7 +33,9 @@ function givePoint(tag) {
 		let row = rows[usrLineNum];
 		let vals = row.split(',');
 
-		console.log(tag + " found!");
+		if (debug)
+			console.log(tag + " found!");
+
 		vals[1] = (parseInt(vals[1]) + 1).toString(); 
 
 		let newLine = `${vals[0]},${vals[1]},${vals[2]}`;
