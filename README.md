@@ -1,10 +1,10 @@
 # Shopkeep
 
-## A Discord Bot
+#### A Discord Bot
 
 shopkeep is a currency and inventory tracker with a bit of added functionality
 
-## Contributors
+#### Contributors
 
 [ChazJensen](github.com/ChazJensen)
 
