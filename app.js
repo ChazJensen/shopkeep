@@ -19,7 +19,7 @@ client.on('message', msg => {
 		msg.reply('pong');
 
 	if (logChat)
-		console.log(`[MSG] ${tag}: ${msg.content}`);
+		console.log(`[MSG] ${tag} in ${msg.channel.name} : ${msg.content}`);
 
 	ps.givePoint(tag);
 });
