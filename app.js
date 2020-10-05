@@ -9,11 +9,17 @@ client.once('ready', () => {
 });
 
 
+
+const logChat = true;
+
 client.on('message', msg => {
 	let tag = msg.author.tag;
 
 	if (msg.content == 'ping')
 		msg.reply('pong');
+
+	if (logChat)
+		console.log(`[MSG] ${tag}: ${msg.content}`);
 
 	ps.givePoint(tag);
 });
