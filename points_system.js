@@ -69,4 +69,17 @@ function givePoint(tag) {
 }
 
 
+// return the points from a user
+function getPoints(tag) {
+	let lineNum = crudfs.readLine(indicesFile, tag).index;
+
+	let row = crudfs.getRows(pointsFile)[lineNum];
+
+	let points = row.split(',')[1];
+
+	return points;
+}
+
+
 exports.givePoint	= givePoint;
+exports.getPoints	= getPoints;

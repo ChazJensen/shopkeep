@@ -11,12 +11,21 @@ client.once('ready', () => {
 
 
 const logChat = true;
+const prefix = ';';
 
 client.on('message', msg => {
 	let tag = msg.author.tag;
 
-	if (msg.content == 'ping')
-		msg.reply('pong');
+	switch(msg.content) {
+		case('ping'):
+			msg.reply('pong');
+			break;
+		case(prefix + 'points'):
+			// tag's points: ps.getPoints(tag)
+			msg.channel.send(
+				`${tag} has ${ps.getPoints(tag)} points`);
+			break;
+	}
 
 	if (logChat)
 		console.log(`[MSG] ${tag} in ${msg.channel.name} : ${msg.content}`);
