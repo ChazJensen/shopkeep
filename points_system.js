@@ -1,9 +1,9 @@
-const crudfs = require('./crudfs.js');
+const crudfs 	= require('./crudfs.js');
+const debug	= require('./config.json').debug;
 
 const indicesFile = './data/indices.csv';
 const pointsFile = './data/points.csv';
 
-const debug = false;
 /* Parameters:
  * - tag: discord.js user.tag will be unique
  *
@@ -71,16 +71,23 @@ function givePoint(tag) {
 
 // return the points from a user
 function getPoints(tag) {
-	let lineNum = crudfs.readLine(indicesFile, tag).lineIndex;
 	
+	let lineNum = crudfs.readLine(indicesFile, tag).lineIndex;
+
 	let rows = crudfs.getRows(pointsFile);
 
 	let row = rows[lineNum];
 
-	let points = row.split(',')[1];
+	let points;
+	if (row != undefined && row != null) {
+		points = row.split(',')[1];
+	}
 
 	return points;
 }
+
+if (debug)
+	console.log(getPoints("ChimpGimp#8041"));
 
 
 exports.givePoint	= givePoint;

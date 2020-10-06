@@ -60,10 +60,10 @@ function readLine(file, uniqVal) {
 	if (out.lineIndex === undefined)
 		throw new Error(uniqVal + ' was not found in ' + file);
 
-	out.contents = rows[out.index];
+	out.contents = rows[out.lineIndex];
 
 	// out: // fields
-	//   index
+	//   lineIndex
 	//   contents
 	return out;
 }
@@ -115,7 +115,15 @@ function destroyLine() {
  */
 function getRows(file) {
 	let contents = fs.readFileSync(file);
-	return fs.readFileSync(file).toString().split('\n');
+	
+	if (debug)
+		console.log(contents);
+	contents = contents.toString().split('\n');
+	
+	if (debug)
+		console.log(contents);
+
+	return contents;
 }
 
 exports.createLine	= createLine;
