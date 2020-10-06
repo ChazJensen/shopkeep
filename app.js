@@ -1,36 +1,73 @@
 const Discord	= require('discord.js');
 const fs	= require('fs');
 const ps	= require('./points_system.js');
+const config	= require('./config.json');
+
+
+const debug	= config.debug;
+const logChat	= config.logChat;
+const prefix	= config.prefix;
+
 
 const client = new Discord.Client();
+
+client.commands = new Discord.Collection();
 
 client.once('ready', () => {
 	console.log(`signed in as ${client.user.tag}`);
 });
 
 
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
-const logChat = true;
-const prefix = ';';
+// client.commands[commandName] holds a command object
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+	client.commands.set(command.name, command);
+}
+
+
+
 
 client.on('message', msg => {
+	
 	let tag = msg.author.tag;
 
-	switch(msg.content) {
-		case('ping'):
-			msg.reply('pong');
-			break;
-		case(prefix + 'points'):
-			// tag's points: ps.getPoints(tag)
-			msg.channel.send(
-				`${tag} has ${ps.getPoints(tag)} points`);
-			break;
-	}
+	ps.givePoint(tag);
+
+	if (!msg.content.startsWith(prefix) || msg.author.bot)
+		return;
+
 
 	if (logChat)
 		console.log(`[MSG] ${tag} in ${msg.channel.name} : ${msg.content}`);
 
-	ps.givePoint(tag);
+	
+	
+	const args = msg.content.slice(prefix.length).trim().split(' ');
+	const commandName = args.pop().toLowerCase();
+
+	if (!client.commands.get(commandName)) {
+		message.channel.send(`${command} is not a command!`)
+			.delete({ timeout: 1000 });
+		return;
+	}
+
+	const command = client.commands.get(commandName);
+
+	try {
+		if (debug)
+			console.log(`attempting to execute ${commandName}`);
+		command.execute(msg, args);
+	}
+	catch (err) {
+		console.error(err);
+		msg.reply("there was some error executing that command!\nContact ChimpGimp#8041 for more information");
+	}
+
+
+
+	// end
 });
 
 
