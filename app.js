@@ -31,12 +31,15 @@ for (const file of commandFiles) {
 
 client.on('message', msg => {
 	
+
+	if (msg.author.bot)
+		return;
+
+
 	let tag = msg.author.tag;
 
 	ps.givePoint(tag);
 
-	if (!msg.content.startsWith(prefix) || msg.author.bot)
-		return;
 
 
 	if (logChat)
@@ -44,12 +47,16 @@ client.on('message', msg => {
 
 	
 	
+	if (!msg.content.startsWith(prefix))
+		return;
+	
 	const args = msg.content.slice(prefix.length).trim().split(' ');
 	const commandName = args.pop().toLowerCase();
 
 	if (!client.commands.get(commandName)) {
-		message.channel.send(`${command} is not a command!`)
-			.delete({ timeout: 1000 });
+		msg.channel.send(`${commandName} is not a command!`)
+			.then(msg => {msg.delete({ timeout: 1000 })});
+		msg.delete();
 		return;
 	}
 
