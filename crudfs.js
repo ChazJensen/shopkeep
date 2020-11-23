@@ -15,27 +15,32 @@ async function main() {
 
 	let create = queueFileAccess(
 		createLine,
-		['./foo', 'hello from main (through queue)!']
+		'./foo', 'hello from main (through queue)!'
+	);
+
+	queueFileAccess(
+		createLine,
+		'./foo', 'this one will be here!'
 	);
 
 	let find = queueFileAccess(
 		findLine,
-		['./foo', 'hello']
+		'./foo', 'hello'
 	);
 
 	let read = queueFileAccess(
 		readLine,
-		['./foo', 0]
+		'./foo', 0
 	);
 
 	let update = queueFileAccess(
 		updateLine,
-		['./foo', 1, 'abcdefg']
+		'./foo', 1, 'abcdefg'
 	);
 
 	let del = queueFileAccess(
 		deleteLine,
-		['./foo', 0]
+		'./foo', 0
 	);
 
 	fileQ.start();
@@ -149,18 +154,18 @@ async function readLine(file, row) {
 
 				let chunkLineCount = 0;
 
-				if (debug) log(`164: ${lineCount === row}`);
+				if (debug) log(`readLine: ${lineCount === row}`);
 				
 				for (let i of chunk) {
 
-					if (debug) log(`143: ${i}`);
+					if (debug) log(`readLine: ${i}`);
 
 					if (i === newline)
 						chunkLineCount++
 
 					if (lineCount + chunkLineCount === row) {
 
-						if (debug) log(`152: should resolve soon`);
+						if (debug) log(`readLine: should resolve soon`);
 
 						complete = true;
 
@@ -269,7 +274,7 @@ function deleteLine(file, lineNumber) {
 
 
 
-function queueFileAccess(func, params = []) {
+function queueFileAccess(func, ...params) {
 	
 	// this returns func's return from the ticket's promise
 	let ticket = fileQ.add( () => func(...params) );
@@ -323,3 +328,19 @@ function createLineStepper(file) {
 function log(s) {
 	console.log(`{crudfs.js]: ${s}`);
 }
+
+
+exports.createLine = (file, line) => queueFileAccess(
+	createLine, file, line);
+
+exports.findLine = (file, key) => queueFileAccess(
+	findLine, file, key);
+
+exports.readLine = (file, lineNumber) => queueFileAccess(
+	readLine, file, lineNumber);
+
+exports.updateLine = (file, lineNumber, value) => queueFileAccess(
+	updateLine, file, lineNumber, value);
+
+exports.deleteLine = (file, lineNumber) => queueFileAccess(
+	deleteLine, file, lineNumber);
