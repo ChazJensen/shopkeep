@@ -29,16 +29,17 @@ for (const file of commandFiles) {
 
 
 
-client.on('message', msg => {
+client.on('message', async (msg) => {
 	
 
 	if (msg.author.bot)
 		return;
 
 
-	let tag = msg.author.tag;
+	const tag = msg.author.tag;
 
-	ps.givePoint(tag);
+	console.log(tag);
+	ps.givePoints(tag, 1);
 
 
 
@@ -51,7 +52,24 @@ client.on('message', msg => {
 		return;
 	
 	const args = msg.content.slice(prefix.length).trim().split(' ');
-	const commandName = args.pop().toLowerCase();
+
+
+	const commandName = args.shift().toLowerCase();
+
+	if (debug)
+		console.log(commandName);
+
+	// convert userID (pings) to tags
+	for (let i = 0; i < args.length; i++) {
+		if (RegExp("<@![0-9]+>").test(args[i])) {
+			console.log(args[i]);
+			console.log(await client.users.fetch(args[i].slice(3,21)));
+			let user = await client.users.fetch(args[i].slice(3,21));
+			args[i] = `${user.username}#${user.discriminator}`;
+		}
+	}
+	if (debug || true)
+		console.log(args);
 
 	if (!client.commands.get(commandName)) {
 		msg.channel.send(`${commandName} is not a command!`)

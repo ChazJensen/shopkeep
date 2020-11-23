@@ -72,28 +72,51 @@ function createLine(file, line) {
  *  - lineNumber
  *  - lineValue
  */
-function findLine(file, uniqVal, callback = (val) => { console.log(val); }) {
+function findLine(file, uniqVal) {
 	let readStream = fs.createReadStream(file);
+	let complete = false;
 	let newlines = 0;
+	let lineValue = "";
 	
 	readStream.on('data', (chunk) => {
+
+		if (complete)
+			return;
 
 		let rows = chunk.toString().split('\n');
 
 		for(let i in rows) {
 			if (rows[i].startsWith(uniqVal)) {
 
-				callback({
-						lineNumber: newlines,
-						lineValue: rows[i]
-				});
-
+				complete = true;
+				lineValue = rows[i];
+				
 				break;
 			}
 			newlines++;
 		}
 	});/**/
 	
+	return new Promise((resolve, reject) => {
+		readStream.on('end', () => {
+
+			if (!complete) {
+			
+				if (debug)
+					log("[WARN] findLine[75] Promise[100]: name not found in file");
+				
+				reject("name not found in file");
+
+			} else {
+
+				resolve({
+					lineNum: newlines,
+					lineVal: lineValue
+				});
+
+			}
+		});
+	});
 
 }
 
@@ -116,29 +139,53 @@ function findLine(file, uniqVal, callback = (val) => { console.log(val); }) {
  *  - lineContents: content of the line in `file`
  *  		with corresponding line number
  */
-function readLine(file, lineNumber, callback = (val) => { console.log(val); } ) {
-	let readStream = fs.createReadStream(file);
-	let newlines = 0;
-	let newline = '\n'.charCodeAt(0);
+function readLine(file, lineNumber) {
+	if (debug && typeof lineNumber != 'number')
+		log("readLine[142]: lineNumber is not a number");
 
-	readStream.on('data', chunk => {
-		let chunkNewlines = 0;
-		for (var i = 0; i < chunk.length; i++) {
-			if (debug)
-				console.log(`${value} : ${String.fromCharCode(value)}`);
+	return new Promise((resolve, reject) => {
+	
+		let readStream = fs.createReadStream(file);
+		let newlines = 0;
+		let newline = '\n'.charCodeAt(0);
+		let complete = false;
 
-			if (chunk[i] === newline)
-				chunkNewlines++;
+		var row;
 
-			if (newlines + chunkNewlines === lineNumber) {
-				let rows = chunk.toString().split('\n');
-				callback(rows[chunkNewlines]);
-				break;
+		readStream.on('data', chunk => {
+
+			if (complete)
+				return;
+
+			let chunkNewlines = 0;
+			for (var i = 0; i < chunk.length; i++) {
+				if (debug)
+					log(`readLine[142]: ${chunk[i]} : ${String.fromCharCode(chunk[i])}`);
+
+				if (chunk[i] === newline) {
+					
+					if (debug)
+						log('readLine[142]: newline found' + `(${newlines + chunkNewlines}/${lineNumber})`);
+
+					chunkNewlines++;
+				}
+
+				if (newlines + chunkNewlines === lineNumber) {
+					let rows = chunk.toString().split('\n');
+					log("readLine[142]: resolving promise");
+					resolve(rows[chunkNewlines]);
+					break;
+				}
+
 			}
 
-		}
+			newlines += chunkNewlines;
+		});
 
-		newlines += chunkNewlines;
+
+		if (debug)
+			log(row);
+		readStream.on('end', () => reject() );
 	});
 }
 
@@ -192,11 +239,24 @@ function updateLine(file, lineNum, valToUpdate, newValue) {
 
 	lineStepper.on('line', line => {
 		if (debug)
-			console.log("LS from UPDATE: " + line);
+			log("updateLine[219] (lineStepper cb): " + line);
 
 		if (lineCnt === lineNum) {
 			let vals = line.split(',');
-			vals[valToUpdate] = newValue;
+			let t = typeof newValue;
+
+			if (debug)
+				log("updateLine[219]: " + t);
+	
+
+			if (t != "function" && t != "object")
+				vals[valToUpdate] = newValue;
+			else if (t === "function")
+				vals[valToUpdate] = newValue(vals[valToUpdate]);
+			else
+				log(`updateLine[219]: type ${t} unsupported in crudfs.updateLine`);
+			
+
 			line = vals.join(',');
 		}
 
@@ -235,12 +295,12 @@ function destroyLine(file, lineNum) {
 
 	lineStepper.on('line', line => {
 		if (debug)
-			console.log("LS from DESTROY : " + line);
+			log("destroyLine[277] (lineStepper cb): " + line);
 
 		if (linecnt !== lineNum) {
 			writeStream.write(line + '\n');
 		} else {
-			console.log(`ommiting: [${linecnt}] ${line}`);
+			log(`destroyLine[277] (lineStepper cb): ommiting: [${linecnt}] ${line}`);
 		}
 
 		linecnt++;
@@ -255,9 +315,19 @@ function destroyLine(file, lineNum) {
 
 function renameAndFinishEdit(file) {
 	fs.rename(file + ".tmp", file, () => {
-		console.log("edit successful, saving edit");
+		if (debug)
+			log("renameAndFinishEdit[316]: edit successful, saving edit");
 	});
 }
 
-if (debug || true)
+function log(str) {
+	console.log(`crudfs ${str}`);
+}
+exports.createLine	= createLine;
+exports.findLine	= findLine;
+exports.readLine	= readLine;
+exports.updateLine	= updateLine;
+exports.destroyLine	= destroyLine;
+
+if (debug)
 	main();

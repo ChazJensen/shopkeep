@@ -4,6 +4,10 @@ const debug	= require('./config.json').debug;
 const indicesFile = './data/indices.csv';
 const pointsFile = './data/points.csv';
 
+const TAG = 0;
+const POINTS = 1;
+const INV = 2;
+
 /* Parameters:
  * - tag: discord.js user.tag will be unique
  *
@@ -19,76 +23,101 @@ const pointsFile = './data/points.csv';
  *   `tag` into `indices.csv
  *
  */
-function givePoint(tag) {
-	let awarded = false;
-	let usrLineNum;
+async function givePoints(tag, amount) {
 
-
+	console.log(tag)
 	// search through `indices.csv` and assign `tag`'s
 	// index to `usrLineNum`
-	try {
-		usrLineNum = crudfs.readLine(indicesFile, tag).lineIndex;
+	crudfs.findLine(indicesFile, tag)
+	.then(line => {
+	
+		// if usrLineNum is defined return usrLineNum
 
-		let rows = crudfs.getRows(pointsFile);
-		let row = rows[usrLineNum];
-		let vals = row.split(',');
+		crudfs.updateLine(pointsFile,
+			line.lineNum,
+			POINTS,
+			curPts => parseInt(curPts, 10) + amount);
 
-		if (debug)
-			console.log(tag + " found!");
+	})
+	.catch((err, tag) => {
+		console.log(err);
+		// otherwise create a new entry in `points.csv`,
+		// get the line number of that, and store
+		// the tag and line number in `indices.csv`	
+		crudfs.createLine(pointsFile, `${tag},1,{}`);
 
-		vals[1] = (parseInt(vals[1]) + 1).toString(); 
+		crudfs.findLine(pointsFile, tag)	
+		.then(line => {
+			crudfs.createLine(
+				indicesFile,
+				`${tag},${line.lineNum}`);
+		});
+	});
 
-		let newLine = `${vals[0]},${vals[1]},${vals[2]}`;
-
-		crudfs.updateLine(pointsFile, usrLineNum, newLine);
-	}
-	// if tag is not in indices.csv
-	catch (err) {
-		
-		if (debug)
-			console.error(err);
-
-		let newLine = `${tag},1,{}\n`;
-
-		usrLineNum = crudfs.createLine(pointsFile, newLine);
-		
-		crudfs.createLine(indicesFile, `${tag},${usrLineNum}\n`);
-
-	}
-
-
-	// if usrLineNum is defined return usrLineNum
-	// otherwise create a new entry in `points.csv`,
-	// get the line number of that, and store
-	// the tag and line number in `indices.csv`
-
-
-
-
-	return awarded;
 }
 
+async function setPoints(tag, val) {
+	crudfs.findLine(indicesFile, tag)
+	.then(line => {
+		crudfs.updateLine(
+			pointsFile,
+			line.lineNum,
+			POINTS,
+			curVal => val);
+	})
+	.catch((err, tag) => {
+		// otherwise create a new entry in `points.csv`,
+		// get the line number of that, and store
+		// the tag and line number in `indices.csv`	
+		crudfs.createLine(pointsFile, `${tag},1,{}`);
+
+		crudfs.findLine(pointsFile, tag)	
+		.then(line => {
+			crudfs.createLine(
+				indicesFile,
+				`${tag},${line.lineNum}`);
+		});
+	});
+}
 
 // return the points from a user
-function getPoints(tag) {
+// TODO thsi wont work???
+async function getPoints(tag) {
 	
-	let lineNum = crudfs.readLine(indicesFile, tag).lineIndex;
+	let indexSearch = await crudfs.findLine(indicesFile, tag);
+	let lineNum = indexSearch.lineNum;
 
-	let rows = crudfs.getRows(pointsFile);
+	let line = await crudfs.readLine(pointsFile, lineNum)
+		.then(line => {
+			let points = line.split(',')[POINTS];
+			return points;
+		})
+		.catch(err => {
+			console.log("there was an error finding the line");
+		});
 
-	let row = rows[lineNum];
-
-	let points;
-	if (row != undefined && row != null) {
-		points = row.split(',')[1];
-	}
-
-	return points;
+	console.log(line);
+	return line;
 }
+
+
+function newUser(err) {
+
+	crudfs.createLine(pointsFile, `${tag},1,{}`);
+
+	crudfs.findLine(pointsFile, tag)	
+	.then(line => {
+		crudfs.createLine(
+			indicesFile,
+			`${tag},${line.lineNum}`);
+	});
+}
+
 
 if (debug)
 	console.log(getPoints("ChimpGimp#8041"));
 
 
-exports.givePoint	= givePoint;
+exports.givePoints	= givePoints;
+exports.setPoints	= setPoints;
 exports.getPoints	= getPoints;
