@@ -48,9 +48,27 @@ function main() {
  *  - line: Buffer/String to write at the end of the file
  */
 function createLine(file, line) {
+
+	// if file is in use
+	if (isFileLocked(file)) {
+
+		// schedule edit for later
+		setTimeout(() => {
+			createLine(file, line)},
+			100
+		);
+
+		// don't do anything else right now, there's no need to
+		return;
+	}
+
+	lockFile(file);
+
 	let writeStream = fs.createWriteStream(file, { flags: 'a' } );
 	
 	writeStream.write(`\n${line}`);
+
+	unlockFile(file);
 }
 
 
@@ -73,6 +91,16 @@ function createLine(file, line) {
  *  - lineValue
  */
 function findLine(file, uniqVal) {
+	// if the file is being used
+	if (isFileLocked(file)) {
+		// schdule find for later
+		setTimeout(() => {
+			findLine()},
+			100
+		);
+		// do nothing, that's it
+		return;
+	}
 	let readStream = fs.createReadStream(file);
 	let complete = false;
 	let newlines = 0;
