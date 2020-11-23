@@ -6,31 +6,62 @@ const readline = require('readline');
 // const config = require('./config.json');
 
 // const debug = config.debug;
-const debug = true;
+const debug = false;
 
 
+async function main() {
+
+	let foo = new Queue();
+
+	let out = [];
+
+	out[0] = foo.add('processing');
+	out[1] = foo.add('more');
+	out[2] = foo.add(() => {return true;});
+	out[3] = foo.add('one');
+	out[4] = foo.add('thing');
+	out[5] = foo.add('at');
+	out[6] = foo.add('a');
+	out[7] = foo.add(function() {console.log('time');return 'off'});
+
+	foo.blink();
+
+
+	// for (let i in out)
+		// console.log(await out[i].promise);
+
+	(async () => { for (let i of out) console.log(await i.promise);})();
+
+	await out[1].promise;
+
+	// for (let i = 0; i < out.length; i++)
+		// out[i].queueSpot = -1;
+	
+	// foo.clearQueue();
+
+	console.log('end');
+}
 
 function Queue() {
 	
-	const q = {};
+	this.queue = [];
 
-	q.queue = [];
+	this.pid = -1;
 
-	q.pid = -1;
-
-	q.QUEUE_LIMIT = 16;
+	this.QUEUE_LIMIT = 16;
 
 	/* add takes a function to queue and generates
 	/* a promise ticket, putting it at the end of 
 	/* the queue and giving it back to the caller
 	/*/
-	q.add = (cb) => {
+	this.add = (cb) => {
+
 
 		let callback = (typeof(cb) == 'function')
 			? cb
-			: () => { return cb; };
+			:() => { return cb; };
 
-		let queueSpot = q.queue.length;
+		let queueSpot = this.queue.length;
 
 		
 		let ticket = new QueueTicket(
@@ -39,53 +70,80 @@ function Queue() {
 		);
 
 		
-		q.queue.push( ticket );
+		this.queue.push( ticket );
 
-		return q.queue[q.queue.length - 1];
-
-	};
-
-	q.finishTicket = () => {
-
-		if (q.queue[0] && q.queue[0].processed)
-			q.queue.shift();
-		else
-			q.stopProcessing();
-
-		q.updateQueue()
+		return this.queue[this.queue.length - 1];
 
 	};
 
-	q.updateQueue = () => {
+	this.finishTicket = () => {
 
-		for (let i = 0; i < q.queue.length; i++)
-			q.queue[i].queueSpot = i;
+		if (!this.queue[0]) this.stopProcessing();
+
+		else if (this.queue[0].processed) this.queue.shift();
+		
+
+		this.updateQueue();
+
+	};
+
+	this.updateQueue = () => {
+
+		for (let i = 0; i < this.queue.length; i++)
+			this.queue[i].queueSpot = i;
+
+	};
+
+	this.clearQueue = () => {
+
+		if (this.pid != -1) this.stopProcessing();
+
+		for (let i = 0; i < this.queue.length; i++) {
+
+			this.queue[i].clear();
+
+		}
+
+		this.queue = [];
+
 	};
 
 
-	q.startProcessing = () => {
+	this.startProcessing = () => {
+
+		log(`processing${this.pid != -1 ? ' was previously' : ''} started`)
+
+		if (this.pid === -1)
+			this.pid = setInterval(this.finishTicket, 100)
 	
-		if (q.pid === -1)
-			q.pid = setInterval(q.finishTicket, 100)
+	};
+
+	this.start = this.startProcessing;
+
+	this.stopProcessing = () => {
+
+		log(`processing${(this.pid === -1) ? ' was previously' : ''} stopped`);
+		
+		if (this.pid != -1) clearInterval(this.pid);
+
+		this.pid = -1;
+
+
+	};
+
+	this.stop = this.stopProcessing;
+
+	this.blink = (timeout = 1000) => {
+
+		this.start();
 	
-	};
+		setTimeout(this.stop, timeout);
 
-	q.start = q.startProcessing;
-
-	q.stopProcessing = () => {
-
-		if (q.pid != -1) clearInterval(q.pid);
-
-		q.pid = -1;
-
-	};
-
-	q.stop = q.stopProcessing;
+	}
 
 
 
-
-	return q;
+	return this;
 }
 
 /*psuedo code/documentation*/
@@ -103,6 +161,11 @@ function QueueTicket(callback, queueNumber) {
 
 					// start working on task
 					resolve();
+
+				} else if (ticket.queueSpot === -1) {
+				
+					// this means the ticket was cleared
+					reject('cleared from queue');
 
 				} else {
 
@@ -139,13 +202,34 @@ function QueueTicket(callback, queueNumber) {
 			return output;
 		}
 
+	)
+
+	.catch(
+
+		err => {
+
+			console.log(err);
+
+			ticket.output = err
+
+			ticket.processed = true;
+
+			return err;
+		}
+
 	);
+
+	ticket.clear = () => {
+
+		ticket.queueSpot = -1;
+
+	}
 
 	ticket.processed = false;
 
-	ticket.queueSpot = queueNumber;
-
 	ticket.task = callback;
+
+	ticket.queueSpot = queueNumber;
 
 	ticket.output = {};
 
@@ -154,36 +238,13 @@ function QueueTicket(callback, queueNumber) {
 
 }
 
-/*psuedo code/documentation*/
-function Action() {
-
-}
-
 
 // testing
 if (debug) main();
 
-
-async function main() {
-
-	let foo = new Queue();
-
-	let out = [];
-
-	out[0] = foo.add('processing');
-	out[1] = foo.add('more');
-	out[2] = foo.add('than');
-	out[3] = foo.add('one');
-	out[4] = foo.add('thing');
-	out[5] = foo.add('at');
-	out[6] = foo.add('a');
-	out[7] = foo.add('time');
-
-	foo.start();
-	setTimeout(foo.stop, 1000);
-
-	for (let i in out)
-		console.log(await out[i].promise);
-
-
+function log(s) {
+	console.log(`[queue.js]: ${s}`);
 }
+
+exports.Queue = Queue;
+exports.QueueTicket = QueueTicket;
