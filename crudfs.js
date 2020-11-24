@@ -170,7 +170,7 @@ async function readLine(file, row) {
 					if (i === newline)
 						chunkLineCount++
 
-					if (lineCount + chunkLineCount === row) {
+					if (lineCount + chunkLineCount == row) {
 
 						if (debug) log(`readLine: should resolve soon`);
 

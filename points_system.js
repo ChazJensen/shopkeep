@@ -18,6 +18,7 @@ async function main() {
 	await addTag('abcdefg');
 	await setPoints('abcdefg', 100);
 	await givePoints('abcdefg', 1);
+	console.log(await getPoints('abcdefg'));
 
 }
 
@@ -57,7 +58,7 @@ async function addTag(tag) {
 
 async function setPoints(tag, value) {
 	
-	log(`setting points of ${tag} to ${value}`);
+	log(`setPoints: of ${tag} to ${value}`);
 
 
 	var lineInfo;
@@ -70,15 +71,17 @@ async function setPoints(tag, value) {
 
 	if (debug) {
 
-		log(`attempting updateLine with\n\tlineNumber: ${lineNumber}\n\tvalue: ${value}`);
+		log(`setPoints: attempting updateLine with\n\tlineNumber: ${lineNumber}\n\tvalue: ${value}`);
 
 	}
 
+	
 	// read line in ptsFile, store in memory:
 	let ptsFileTicket = crudfs.readLine(
 		ptsFile,
 		lineNumber
 	);
+
 
 	let line = await ptsFileTicket.promise;
 	line = line.split(',');
@@ -88,6 +91,7 @@ async function setPoints(tag, value) {
 
 	line = line.join(',');
 
+	
 	// update lineNumber in ptsFile to value
 	crudfs.updateLine(
 		ptsFile,
@@ -99,9 +103,31 @@ async function setPoints(tag, value) {
 
 async function givePoints(tag, amt) {
 
-	// lookup tag
+	// pass function to amount
 	setPoints(tag, num => parseInt(num)+amt)
 
+}
+
+async function getPoints(tag) {
+
+	// find line number in ptsFile
+	let tagInfo = await tagLookup(tag);
+
+	let lineNumber = tagInfo.split(',')[1];
+
+	// ask crudfs for the line
+	let readTicket = crudfs.readLine(
+		ptsFile,
+		lineNumber
+	);
+
+	let line = await readTicket.promise;
+
+	log(`getPoints: ${line}`)
+
+	let points = line.split(',')[POINTS]
+
+	return points;
 }
 
 //			|
@@ -131,5 +157,7 @@ async function tagLookup(tag) {
 }
 
 
+exports.addTag = addTag
 exports.givePoints = givePoints
 exports.setPoints = setPoints
+exports.getPoints = getPoints
