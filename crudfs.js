@@ -84,25 +84,28 @@ async function findLine(file, uniqVal) {
 
 	let lineValue = '';
 
+	let found = false;
+
 
 	readStream.on('data', chunk => {
 
-		if (lineValue != '') return;
+		if (found) return;
 
 
 		let rows = chunk.toString().split('\n');
 
 		for (let i in rows) {
-
-			if (lineValue.length != 0)
-				continue;
-
 		
-			if (rows[i].startsWith(uniqVal))
+			if (rows[i].startsWith(uniqVal)) {
+
 				lineValue = rows[i]
 
+				found = true;
 
-			newlines++;
+			}
+
+
+			if (!found) newlines++;
 
 		}
 
@@ -113,12 +116,16 @@ async function findLine(file, uniqVal) {
 
 			readStream.on('end', () => {
 
-				if (lineValue === '')
-					rej('name not found in file');			
+				if (!found) {
+					res({
+						lineNumber: -1,
+						lineValue: ''
+					});
+				}
 				
 				res({
-					lineNum: newlines,
-					lineVal: lineValue
+					lineNumber: newlines,
+					lineValue: lineValue
 				});
 			});
 
@@ -163,7 +170,7 @@ async function readLine(file, row) {
 					if (i === newline)
 						chunkLineCount++
 
-					if (lineCount + chunkLineCount === row) {
+					if (lineCount + chunkLineCount == row) {
 
 						if (debug) log(`readLine: should resolve soon`);
 

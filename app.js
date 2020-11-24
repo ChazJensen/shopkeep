@@ -39,7 +39,10 @@ client.on('message', async (msg) => {
 	const tag = msg.author.tag;
 
 	console.log(tag);
-	ps.givePoints(tag, 1);
+
+	await ps.addTag(tag);
+
+	await ps.givePoints(tag, 1);
 
 
 
