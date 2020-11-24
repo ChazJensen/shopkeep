@@ -72,6 +72,9 @@ function Queue() {
 		
 		this.queue.push( ticket );
 
+		if (!this.processing())
+			this.startProcessing();
+
 		return this.queue[this.queue.length - 1];
 
 	};
@@ -132,6 +135,8 @@ function Queue() {
 	};
 
 	this.stop = this.stopProcessing;
+
+	this.processing = () => (this.pid != -1);
 
 	this.blink = (timeout = 1000) => {
 
