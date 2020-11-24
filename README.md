@@ -5,6 +5,30 @@
 shopkeep is a currency and inventory tracker with a bit of added functionality
 
 
+### TODO
+
+TODO:
+[x] backend rewrite
+  [x] USE FileHandle class from `fs`
+- bot features to implement:
+  [x] set points
+    [x] add points
+    [x] subtract points
+  * shop
+    + creation
+    + management
+      * add/remove item for sale
+      * pricing items
+      * [VOTE_ON] stock: infinite or is there a supply chain?
+        = supply chain would be run by NPCs that you pay for stock
+    + "selling"
+  * inventory
+- boiler plate code for
+  [x] codeblock
+  [x] delay-delete messages (oneliner???)
+  * row-to-codeblock parser
+
+
 ---
 
 ### Changelog:
