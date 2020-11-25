@@ -1,7 +1,7 @@
 const crudfs	= require('./crudfs.js');
 
-// const debug	= require('./config.json').debug;
-const debug = true;
+const debug	= require('./config.json').debug;
+
 
 const idxFile	= './data/indices.csv';
 

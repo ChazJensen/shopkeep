@@ -3,10 +3,10 @@ const fs = require('fs');
 const readline = require('readline');
 
 
-// const config = require('./config.json');
+const config = require('./config.json');
 
-// const debug = config.debug;
-const debug = false;
+const debug = config.debug;
+
 
 
 async function main() {
@@ -248,7 +248,7 @@ function QueueTicket(callback, queueNumber) {
 if (debug) main();
 
 function log(s) {
-	console.log(`[queue.js]: ${s}`);
+	if (debug) console.log(`[queue.js]: ${s}`);
 }
 
 exports.Queue = Queue;
