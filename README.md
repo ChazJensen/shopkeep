@@ -14,16 +14,16 @@ TODO:
   - [x] set points
     - [x] add points
     - [x] subtract points
-  - [] shop
-    - [] creation
-    - [] management
-      - [] add/remove item for sale
-      - [] pricing items
-      - [] [VOTE_ON] stock: infinite or is there a supply chain?
-        - [] supply chain would be run by NPCs that you pay for stock
+  - [ ] shop
+    - [ ] creation
+    - [ ] management
+      - [ ] add/remove item for sale
+      - [ ] pricing items
+      - [ ] [VOTE_ON] stock: infinite or is there a supply chain?
+        - [ ] supply chain would be run by NPCs that you pay for stock
 	- decision: 
-    - [] "selling"
-  - [] inventory
+    - [ ] "selling"
+  - [ ] inventory
 - boiler plate code for
   - [x] codeblock
   - [x] delay-delete messages (oneliner???)
