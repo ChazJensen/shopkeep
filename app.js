@@ -1,6 +1,6 @@
 const Discord	= require('discord.js');
 const fs	= require('fs');
-const ps	= require('./points_system.js');
+const ps	= require('./lib/points_system.js');
 const config	= require('./config.json');
 
 
