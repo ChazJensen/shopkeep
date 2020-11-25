@@ -1,10 +1,10 @@
 {
   "name": "shopkeep",
-  "version": "1.0.0",
+  "version": "0.0.6",
   "description": "discord bot to keep currency trakcer",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"node index.js\" && exit 1"
+    "test": "echo \"node app.js\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
     "currency"
   ],
   "author": "ChazJensen",
-  "license": "ISC",
+  "license": "https://github.com/ChazJensen/shopkeep/LICENSE",
   "bugs": {
     "url": "https://github.com/ChazJensen/shopkeep/issues"
   },
