@@ -1,6 +1,15 @@
 const codeblock = require('./codeblock.js').codeblock;
 
 
+/* shops will have:
+ * -owners
+ * -employees
+ * -channels
+ * -inventories
+/**/
+function Shop() {
+
+}
 
 
 module.exports = {
