@@ -5,6 +5,9 @@
 shopkeep is a currency and inventory tracker with a bit of added functionality
 
 
+---
+
+
 ### TODO
 
 TODO:
@@ -31,6 +34,33 @@ TODO:
 
 
 ---
+
+
+### Installation
+
+TODO: write out steps for creating a discord bot
+TODO: write out steps for storing token
+
+Shopkeep uses discord.js. Once you clone the repo, run
+
+```
+npm install discord.js
+```
+
+Afterwards, in order to start Shopkeep, run `make`, or `node app`.
+If you get errors regarding certain folders not being created, ensure
+the following folders exist:
+
+- commands
+- data
+- lib
+- node_modules
+
+Create an issue if you are having trouble with this.
+
+
+---
+
 
 ### Changelog:
 
