@@ -10,7 +10,6 @@ shopkeep is a currency and inventory tracker with a bit of added functionality
 
 ### TODO
 
-TODO:
 - [x] backend rewrite
 - [x] USE FileHandle class from `fs`
 - bot features to implement:
