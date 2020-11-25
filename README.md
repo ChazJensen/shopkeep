@@ -63,9 +63,17 @@ Create an issue if you are having trouble with this.
 
 ### Changelog:
 
-**v1.0.1**: added modes: debug and chatlogger
+**v0.0.5**: debug mode turned off; can be used for its basic function: points. A few crumbs left for future implementation
 
-**v1.0.0**: basic currency tracker--based on messages sent
+**v0.0.4**: boilerplate code in the frontend has been abstracted for readability
+
+**v0.0.3**: bot awards a user a point for each message they send
+
+**v0.0.2**: backend rewritten for readability and efficiency
+
+**v0.0.1**: added modes: debug and chatlogger
+
+**v0.0.0**: basic currency tracker--based on messages sent
 
 
 ### Contributors
