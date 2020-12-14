@@ -1,4 +1,4 @@
-const ps = require('../points_system.js');
+const ps = require('../lib/points_system.js');
 const conf = require('../config.json');
 
 const dd = require('./delaydelete.js').dd;

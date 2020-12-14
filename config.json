@@ -1,5 +1,5 @@
 {
 	"prefix": "sk",
-	"debug": false,
+	"debug": true,
 	"logChat": true
 }
